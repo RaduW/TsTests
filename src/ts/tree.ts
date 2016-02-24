@@ -1,25 +1,49 @@
 namespace ModificationEditor{
     
-    export interface ITreeLocation<Node>{
-        toParent : this;
-        numberOfChildren: number;
-        toChild(index: number): this; 
-        node: Node;
+    
+    export interface INavigator<Node>{
+        Next( currentLocation: Node): Node;
+        Previous( currentLocation: Node): Node;
     }
     
-    export interface ITreeNavigator<Node>{
-        In( currentLocation: ITreeLocation<Node>): ITreeLocation<Node>;
-        Out( currentLocation: ITreeLocation<Node>): ITreeLocation<Node>;
-        Next( currentLocation: ITreeLocation<Node>): ITreeLocation<Node>;
-        Previous( currentLocation: ITreeLocation<Node>): ITreeLocation<Node>;
+    export interface ITreeNavigator<Node> extends INavigator<Node>{
+        In( currentLocation: Node): Node;
+        Out( currentLocation: Node): Node;
     }
     
-    export class HtmlTreeLocation implements ITreeLocation<HTMLElement>{
-        
+    export class SimpleHtmlNavigator implements ITreeNavigator<HTMLElement>{
+
+        Next( element: HTMLElement): HTMLElement{
+            if (! element || ! (element instanceof HTMLElement))
+                return null;
+            let currentLocation: Element= element;
+            do{
+                currentLocation = currentLocation.nextElementSibling;
+                if ( currentLocation instanceof HTMLElement)
+                    return currentLocation;                
+            }while ( currentLocation != null);
+            return null;
+        }
+
+        Previous( element: HTMLElement): HTMLElement{
+            return null;
+        }
+
+        In( element: HTMLElement): HTMLElement{
+            return null;
+        }
+
+        Out( element: HTMLElement): HTMLElement{
+            return null;
+        }
+    }
+    
+    export class HtmlTreePointer implements ITreePointer<HTMLElement>{
         private currentItem: HTMLElement;
         
         public constructor(item: HTMLElement){
             this.currentItem = item;
+            this.currentItem.nextElementSibling
         }
         get toParent():this{
             this.currentItem =<HTMLElement>this.currentItem.parentNode;
@@ -36,7 +60,15 @@ namespace ModificationEditor{
         get node(): HTMLElement {
             return this.currentItem;
         };
-
+        clone():HtmlTreePointer{
+            return new HtmlTreePointer(this.currentItem);
+        }
+        
+        sameLocation( other: this){
+            if (!other)
+                return false;
+            return this.node === other.node;
+        }
     }    
 }
 
