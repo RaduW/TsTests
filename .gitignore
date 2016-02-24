@@ -1,0 +1,7 @@
+/src/typings
+/node_modules
+/bower_components/**
+/.vscode/settings.json
+*.zip
+/ModificationEditor
+/modificationEditor

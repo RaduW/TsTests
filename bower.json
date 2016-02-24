@@ -1,0 +1,37 @@
+{
+  "name": "JsTutorial",
+  "version": "0.0.1",
+  "authors": [
+    "Radu Woinaroski <Radu.Woinaroski@greentube.com>"
+  ],
+  "description": "Javascript Tutorial",
+  "keywords": [
+    "javascript",
+    "repl",
+    "js",
+    "tutorial"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "1.5.0-rc.0",
+    "angular-material": "~1.0.1",
+    "angular-mocks": "1.5.0-rc.0",
+    "lodash": "~3.10.1",
+    "codemirror": "~5.10.0",
+    "jquery": "~2.1.4",
+    "angular-ui-layout": "~1.4.1",
+    "bootstrap": "~3.3.6",
+    "angular-ui-codemirror": "~0.3.0",
+    "marked": "~0.3.5",
+    "angular-marked": "~1.0.1",
+    "angular-hotkeys": "chieffancypants/angular-hotkeys#~1.6.0",
+    "angular-ui-router": "ui-router#~0.2.15"
+  }
+}
