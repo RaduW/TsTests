@@ -12,63 +12,62 @@ namespace ModificationEditor{
     }
     
     export class SimpleHtmlNavigator implements ITreeNavigator<HTMLElement>{
+        
+        public constructor(private returnNullOnMoveFailure:boolean = false)
+        {}
 
-        Next( element: HTMLElement): HTMLElement{
+        public Next( element: HTMLElement): HTMLElement{
+            let failReturn = this.returnNullOnMoveFailure ? null: element;
+            
             if (! element || ! (element instanceof HTMLElement))
-                return null;
+                return failReturn;
             let currentLocation: Element= element;
             do{
                 currentLocation = currentLocation.nextElementSibling;
                 if ( currentLocation instanceof HTMLElement)
                     return currentLocation;                
             }while ( currentLocation != null);
-            return null;
+            return failReturn;
         }
 
-        Previous( element: HTMLElement): HTMLElement{
-            return null;
+        public Previous( element: HTMLElement): HTMLElement{
+            let failReturn = this.returnNullOnMoveFailure ? null: element;
+
+            if (! element || ! (element instanceof HTMLElement))
+                return failReturn;
+            let currentLocation: Element= element;
+            do{
+                currentLocation = currentLocation.previousElementSibling;
+                if ( currentLocation instanceof HTMLElement)
+                    return currentLocation;                
+            }while ( currentLocation != null);
+            return failReturn;
         }
 
-        In( element: HTMLElement): HTMLElement{
-            return null;
+        public In( element: HTMLElement): HTMLElement{
+            let failReturn = this.returnNullOnMoveFailure ? null: element;
+
+            if (! element || ! (element instanceof HTMLElement))
+                return failReturn;
+            let retVal = element.firstElementChild;
+            do{
+                if ( retVal instanceof HTMLElement)
+                    return retVal;
+                retVal = retVal.nextElementSibling;
+            }while ( retVal != null)
+            
+            return failReturn;
         }
 
-        Out( element: HTMLElement): HTMLElement{
-            return null;
+        public Out( element: HTMLElement): HTMLElement{
+            let failReturn = this.returnNullOnMoveFailure ? null: element;
+
+            if (! element || ! (element instanceof HTMLElement))
+                return failReturn;
+                
+            return element.parentElement == null? failReturn : element.parentElement;
         }
     }
     
-    export class HtmlTreePointer implements ITreePointer<HTMLElement>{
-        private currentItem: HTMLElement;
-        
-        public constructor(item: HTMLElement){
-            this.currentItem = item;
-            this.currentItem.nextElementSibling
-        }
-        get toParent():this{
-            this.currentItem =<HTMLElement>this.currentItem.parentNode;
-            return this;
-        };
-        get numberOfChildren(): number{
-            return 0;
-        }
-        toChild(index: number):this{
-            if ( this.currentItem)
-                this.currentItem = <HTMLElement>this.currentItem.childNodes[index];
-            return this;
-        }
-        get node(): HTMLElement {
-            return this.currentItem;
-        };
-        clone():HtmlTreePointer{
-            return new HtmlTreePointer(this.currentItem);
-        }
-        
-        sameLocation( other: this){
-            if (!other)
-                return false;
-            return this.node === other.node;
-        }
-    }    
 }
 
