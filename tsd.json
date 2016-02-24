@@ -20,9 +20,6 @@
     "lodash/lodash.d.ts": {
       "commit": "0bc09e91dd6f2d34b14af4367a138d34f437a5d4"
     },
-    "highlightjs/highlightjs.d.ts": {
-      "commit": "0bc09e91dd6f2d34b14af4367a138d34f437a5d4"
-    },
     "angular-hotkeys/angular-hotkeys.d.ts": {
       "commit": "0bc09e91dd6f2d34b14af4367a138d34f437a5d4"
     },
