@@ -1,3 +1,4 @@
+/// <reference path="../typings/tsd.d.ts" />
  /*
    The tree
    n1-------------
@@ -205,6 +206,7 @@ var TestNavigator = (function () {
     return TestNavigator;
 }());
 
+
 describe("Testing tree navigation", function(){
     beforeEach(function(){
         //do your init
@@ -261,7 +263,7 @@ describe("Testing tree navigation", function(){
                 it("should navigate from startNode to endNode", function(){
                     var startNode = findNode(startNodeName);
                     var endNode = findNode(endNodeName);
-                    expect(findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
+                    expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
                 });    
             }
         );

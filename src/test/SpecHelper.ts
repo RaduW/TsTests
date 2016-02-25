@@ -1,3 +1,7 @@
+declare module jasmine {
+    var currentEnv_: any;
+}
+
 // Data provider code
 function using(name, values, func){
   for (var i = 0, count = values.length; i < count; i++) {
