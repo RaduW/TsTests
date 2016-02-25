@@ -46,76 +46,141 @@ namespace ModificationEditor{
    next(h,true)->null
    next(h,false)->null
    */
+    interface ITestNode{
+        type:string;
+        id: string;
+        parent: ITestNode;
+        children: ITestNode[];
+        
+    }
     
     
-    let testTree = {
-        type : 'n', id: 'n1',
+    let testTree:ITestNode = {
+        type : 'n', id: 'n1', parent:null,
         children:[{
-            type:'other', id: 'a',
+            type:'other', id: 'a', parent:null,
             children:[
             {
-                type:'node', id: 'n2',
+                type:'node', id: 'n2', parent:null,
                 children:[
                     {
-                        type:'other', id: 'c',
+                        type:'other', id: 'c', parent:null,
                         children:<any>null
                     },
                     {
-                        type:'other', id: 'd',
+                        type:'other', id: 'd', parent:null,
                         children:<any>null
                     },
                 ]
             },
             {
-                type:'other', id: 'e',
+                type:'other', id: 'e', parent:null,
                 children:[
                 {
-                    type:'node', id: 'n3',
+                    type:'node', id: 'n3', parent:null,
                     children:[
                     {
-                        type:'other', id: 'f',
+                        type:'other', id: 'f', parent:null,
                         children:<any>null
                     },
                     {
-                        type:'node', id: 'n4',
+                        type:'node', id: 'n4', parent:null,
                         children:<any>null
                     }]
                 },
                 {
-                    type:'other', id: 'g',
+                    type:'other', id: 'g', parent:null,
                     children:<any>null
                 }]
             }]
         },
         {
-            type:'node',  id: 'n5',
+            type:'node',  id: 'n5', parent:null,
             children:[
             {
-                type:'node', id: 'n6',
+                type:'node', id: 'n6', parent:null,
                 children:<any>null
             }]
         },
         {
-            type:'other', id: 'b',
+            type:'other', id: 'b', parent:null,
             children:[
             {
-                type:'node', id: 'n7',
+                type:'node', id: 'n7', parent:null,
                 children:[
                 {
-                    type:'node', id: 'n8',
+                    type:'node', id: 'n8', parent:null,
                     children:<any>null
                 },
                 {
-                    type:'node', id: 'n9',
+                    type:'node', id: 'n9', parent:null,
                     children:<any>null
                 }]
             },
             {
-                type:'other', id: 'h',
+                type:'other', id: 'h', parent:null,
                 children:<any>null
             }]
         }]
     };
+
+//patch the parent back pointer
+(function patch(node:ITestNode, parent:ITestNode){
+    node.parent = parent;
+    for( let child of node.children){
+        patch(child,node);
+    }
+} 
+)(testTree, null);
+
+    class TestNavigator implements INodeNavigator<ITestNode>{
+
+        nextSibling(node:ITestNode):ITestNode{
+            if ( ! node.parent)
+                return null;
+             let parent:ITestNode = node.parent;
+            let currentNodeIndex = _.indexOf(parent.children,node);
+            if (currentNodeIndex < parent.children.length -1)
+                return parent.children[currentNodeIndex+1];
+            return null;
+        }
+
+        previousSibling(node:ITestNode):ITestNode{
+            if ( ! node.parent)
+                return null;
+             let parent:ITestNode = node.parent;
+            let currentNodeIndex = _.indexOf(parent.children,node);
+            if (currentNodeIndex > 0)
+                return parent.children[currentNodeIndex-1];
+            return null;
+        }
+
+        parent(node:ITestNode):ITestNode{
+            return node.parent;
+        }
+
+        firstChild(node:ITestNode):ITestNode{
+            if ( node.children && node.children.length > 0)
+                node.children[0];
+            return null;
+        }
+
+        lastChild(node:ITestNode):ITestNode{
+            if ( node.children && node.children.length > 0)
+                node.children[node.children.length-1];
+            return null;
+        }
+
+        hasChildren(node:ITestNode): boolean{
+            if ( node.children && node.children.length > 0)
+                return true;
+            return false;
+        }
+        
+        hasParent(node:ITestNode): boolean{
+            return !!node.parent;
+        }
+    }
     
     export interface ILinearWalker<Node>{
         Next( currentLocation: Node): Node;
@@ -126,7 +191,6 @@ namespace ModificationEditor{
         In( currentLocation: Node): Node;
         Out( currentLocation: Node): Node;
     }
-    
     
     interface INodeNavigator<Node>{
         nextSibling(node:Node):Node;
