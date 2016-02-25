@@ -21,6 +21,7 @@ module.exports = function (config) {
             'lib/**/*.js',
             'js/**/*.module.js',
             'js/**/*.js',
+            'test/SpecHelper.js',
             'test/**/*Test.js',
             'test/**/*Test.coffee',
             'js/**/*.html'   // this is for the ng-html2js preprocessor
