@@ -195,7 +195,7 @@ namespace ModificationEditor{
         return null;        
     }
     
-    export class SimpleHtmlNavigator implements ITreeNavigator<HTMLElement>{
+    export class SimpleHtmlNavigator implements ISurfaceWalker<HTMLElement>{
         
         public constructor(private returnNullOnMoveFailure:boolean = false)
         {}
