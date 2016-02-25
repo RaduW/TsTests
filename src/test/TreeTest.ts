@@ -47,91 +47,102 @@
    */
 
 
-var testTree = {
-    type: 'n', id: 'n1', parent: null,
-    children: [{
-            type: 'other', id: 'a', parent: null,
-            children: [
-                {
-                    type: 'node', id: 'n2', parent: null,
-                    children: [
-                        {
-                            type: 'other', id: 'c', parent: null,
-                            children: null
-                        },
-                        {
-                            type: 'other', id: 'd', parent: null,
-                            children: null
-                        },
-                    ]
-                },
-                {
-                    type: 'other', id: 'e', parent: null,
-                    children: [
-                        {
-                            type: 'node', id: 'n3', parent: null,
-                            children: [
-                                {
-                                    type: 'other', id: 'f', parent: null,
-                                    children: null
-                                },
-                                {
-                                    type: 'node', id: 'n4', parent: null,
-                                    children: null
-                                }]
-                        },
-                        {
-                            type: 'other', id: 'g', parent: null,
-                            children: null
-                        }]
-                }]
-        },
-        {
-            type: 'node', id: 'n5', parent: null,
-            children: [
-                {
-                    type: 'node', id: 'n6', parent: null,
-                    children: null
-                }]
-        },
-        {
-            type: 'other', id: 'b', parent: null,
-            children: [
-                {
-                    type: 'node', id: 'n7', parent: null,
-                    children: [
-                        {
-                            type: 'node', id: 'n8', parent: null,
-                            children: null
-                        },
-                        {
-                            type: 'node', id: 'n9', parent: null,
-                            children: null
-                        }]
-                },
-                {
-                    type: 'other', id: 'h', parent: null,
-                    children: null
-                }]
-        }]
-};
-//patch the parent back pointer
-(function patch(node, parent) {
-    node.parent = parent;
-    for (var _i = 0, _a = node.children; _i < _a.length; _i++) {
-        var child = _a[_i];
-        patch(child, node);
+    interface ITestNode{
+        type:string;
+        id: string;
+        parent: ITestNode;
+        children: ITestNode[];
+        
     }
-})(testTree, null);
+    
+    
+    let testTree:ITestNode = {
+        type : 'n', id: 'n1', parent:null,
+        children:[{
+            type:'other', id: 'a', parent:null,
+            children:[
+            {
+                type:'node', id: 'n2', parent:null,
+                children:[
+                    {
+                        type:'other', id: 'c', parent:null,
+                        children:<any>null
+                    },
+                    {
+                        type:'other', id: 'd', parent:null,
+                        children:<any>null
+                    },
+                ]
+            },
+            {
+                type:'other', id: 'e', parent:null,
+                children:[
+                {
+                    type:'node', id: 'n3', parent:null,
+                    children:[
+                    {
+                        type:'other', id: 'f', parent:null,
+                        children:<any>null
+                    },
+                    {
+                        type:'node', id: 'n4', parent:null,
+                        children:<any>null
+                    }]
+                },
+                {
+                    type:'other', id: 'g', parent:null,
+                    children:<any>null
+                }]
+            }]
+        },
+        {
+            type:'node',  id: 'n5', parent:null,
+            children:[
+            {
+                type:'node', id: 'n6', parent:null,
+                children:<any>null
+            }]
+        },
+        {
+            type:'other', id: 'b', parent:null,
+            children:[
+            {
+                type:'node', id: 'n7', parent:null,
+                children:[
+                {
+                    type:'node', id: 'n8', parent:null,
+                    children:<any>null
+                },
+                {
+                    type:'node', id: 'n9', parent:null,
+                    children:<any>null
+                }]
+            },
+            {
+                type:'other', id: 'h', parent:null,
+                children:<any>null
+            }]
+        }]
+    };
 
-function findNode(nodeName){
+//patch the parent back pointer
+(function patch(node:ITestNode, parent:ITestNode){
+    node.parent = parent;
+    for( let child of node.children){
+        patch(child,node);
+    }
+} 
+)(testTree, null);
+
+
+function findNode(nodeName:string):ITestNode{
     return findNodeInternal(testTree,nodeName);
 }
 
-function findNodeInternal(node, nodeName){
+function findNodeInternal(node:ITestNode, nodeName:string):ITestNode{
     var retVal = null;
     if ( node.id === nodeName)
-        return nodeName;
+        return node;
     var idx = 0;
     var numElm = node.children.length;
     
@@ -142,7 +153,7 @@ function findNodeInternal(node, nodeName){
     return retVal;    
 }
 
-function testMatcher(node){
+function testMatcher(node:ITestNode){
     if ( !node)
         return false;
     
@@ -198,7 +209,17 @@ describe("Testing tree navigation", function(){
     beforeEach(function(){
         //do your init
     })
-    
+
+    //    The tree
+    //    n1-------------
+    //    |          \   \
+    //    a--         n5  b---
+    //    |  \        |   |   \
+    //    n2  e--     n6  n7-  h
+    //    |\  |  \        |  \
+    //    c d n3  g       n8 n9
+    //        | \
+    //        f n4
     it("should navigate", function(){
         using("sample values",
             [["n1", true, "n1"],
