@@ -14,6 +14,7 @@ var gulp = require('gulp'),
     mainBowerFiles = require('main-bower-files'),
     merge = require('merge2'),
     tsd = require('gulp-tsd'),
+    typings = require("gulp-typings"),
     karma = require('karma'),
     del = require('del'),
     gutil = require('gulp-util'),
@@ -53,15 +54,19 @@ gulp.task('typescript', function () {
             target: 'es5',
         }))
         .pipe(gulp.dest(baseDir +'js'));
-
 });
 
-gulp.task('tsd', function (callback) {
-    tsd({
-        command: 'reinstall',
-        config: './tsd.json'
-    }, callback);
+gulp.task("typings",function(){
+    gulp.src("./typings.json")
+        .pipe(typings()); //will install all typingsfiles in pipeline. 
 });
+
+//gulp.task('tsd', function (callback) {
+//   tsd({
+//        command: 'reinstall',
+//        config: './tsd.json'
+//    }, callback);
+//});
 
 // fetches all bower dependencies (from bower.json)
 gulp.task('bower', function(){
@@ -83,7 +88,7 @@ gulp.task('copyDirectiveTemplates', function () {
 });
 
 
-gulp.task('dependencies', ['tsd','bower'],function () {
+gulp.task('dependencies', ['typings','bower'],function () {
     console.log("fetching all dependencies");
 });
 

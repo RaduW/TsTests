@@ -29,7 +29,6 @@ namespace ModificationEditor{
     export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
         if (!currentNode)
             return null;
-
         //look inside the node if we need to
         if ( includeCurrent)
         {
@@ -71,8 +70,10 @@ namespace ModificationEditor{
             if ( matcher(currentChild))
                 return currentChild;
             let child = findChild(currentChild,navigator,matcher);
-            if ( child )
+            if ( child ){
+                console.log(`findChild(${currentNode}) returned ${child}`);
                 return child;
+            }
             currentChild = navigator.nextSibling(currentChild);
         }while( currentChild != null)
         

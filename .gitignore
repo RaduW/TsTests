@@ -1,4 +1,6 @@
 /src/typings
+/src/lib
+/src/js
 /node_modules
 /bower_components/**
 /.vscode/settings.json

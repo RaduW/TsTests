@@ -21,15 +21,16 @@ module.exports = function (config) {
             'lib/**/*.js',
             'js/**/*.module.js',
             'js/**/*.js',
-            'test/SpecHelper.js',
-            'test/**/*Test.js',
-            'test/**/*Test.coffee',
+            'lib/jasmine-data_driven_tests/src/all.js',
+            'js/**/*.spec.js',
+            'test/**/*spec.coffee',
             'js/**/*.html'   // this is for the ng-html2js preprocessor
         ],
 
 
         // list of files to exclude
         exclude: [],
+
 
 
         // preprocess matching files before serving them to the browser
@@ -71,8 +72,21 @@ module.exports = function (config) {
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['progress'],
+        //reporters: ['progress'],
+        reporters: ["karmaSimpleReporter"],
 
+        specReporter: {
+            suppressPassed: true,
+            suppressSkipped: true,
+            suppressFailed: false,
+            suppressErrorSummary: true, 
+            maxLogLines: 5,
+            prefixes: {
+            success: '✓ ',
+            failure: '✗ ',
+            skipped: '- '
+            }
+        },
 
         // web server port
         port: 9876,
@@ -94,8 +108,8 @@ module.exports = function (config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         //browsers: ['Chrome', 'PhantomJS'],
-        browsers: ['PhantomJS'],
-        //browsers: ['Chrome'],
+        //browsers: ['PhantomJS'],
+        browsers: ['Chrome'],
 
 
         // Continuous Integration mode

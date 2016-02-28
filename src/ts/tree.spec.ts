@@ -1,137 +1,66 @@
 /// <reference path="../typings/tsd.d.ts" />
- /*
-   The tree
-   n1-------------
-   |          \   \
-   a--         n5  b---
-   |  \        |   |   \
-   n2  e--     n6  n7-  h
-   |\  |  \        |  \
-   c d n3  g       n8 n9
-       | \
-       f n4
-   
-   next(n1,true) ->n1
-   next(n1,false) ->null
-   next(a,true) -> n2
-   next(a,false) ->n5
-   next(n2,true) -> n3
-   next(n2,false)->n3
-   next(c,true)->n3
-   next(c,false)->n3
-   next(d,true)->n3
-   next(d,false)->n3
-   next(e,true)->n3
-   next(e,false)->n5
-   next(n3,true)->n3
-   next(n3,false)->n5
-   next(f,true)-> n4
-   next(f,false)->n4
-   next(n4,true)->n4
-   next(n4,false)->n5
-   next(g,true)->n5
-   next(g,false)->n5
-   next(n5,true)->n5
-   next(n5,false)->n7
-   next(n6,true)->n6
-   next(n6,false)->n7
-   next(b,true)->n7
-   next(b,false)->null
-   next(n7,true)->n7
-   next(n7,false)->null
-   next(n8,true)->n8
-   next(n8,false)->n9
-   next(n9,true)->n9
-   next(n9,false)->null
-   next(h,true)->null
-   next(h,false)->null
-   */
+/// <reference path="tree.ts" />
 
+interface ITestNode{
+    type:string;
+    id: string;
+    parent: ITestNode;
+    children: ITestNode[];
+    
+}
 
-    interface ITestNode{
-        type:string;
-        id: string;
-        parent: ITestNode;
-        children: ITestNode[];
-        
-    }
+class TestNode implements ITestNode{
+    constructor ( public type:string, public id:string, public children:ITestNode[] = null, public parent:ITestNode = null){}
+    toString(){ return `<${this.type} id=${this.id}>`;}
+}
     
-    
-    let testTree:ITestNode = {
-        type : 'n', id: 'n1', parent:null,
-        children:[{
-            type:'other', id: 'a', parent:null,
-            children:[
-            {
-                type:'node', id: 'n2', parent:null,
-                children:[
-                    {
-                        type:'other', id: 'c', parent:null,
-                        children:<any>null
-                    },
-                    {
-                        type:'other', id: 'd', parent:null,
-                        children:<any>null
-                    },
-                ]
-            },
-            {
-                type:'other', id: 'e', parent:null,
-                children:[
-                {
-                    type:'node', id: 'n3', parent:null,
-                    children:[
-                    {
-                        type:'other', id: 'f', parent:null,
-                        children:<any>null
-                    },
-                    {
-                        type:'node', id: 'n4', parent:null,
-                        children:<any>null
-                    }]
-                },
-                {
-                    type:'other', id: 'g', parent:null,
-                    children:<any>null
-                }]
-            }]
-        },
-        {
-            type:'node',  id: 'n5', parent:null,
-            children:[
-            {
-                type:'node', id: 'n6', parent:null,
-                children:<any>null
-            }]
-        },
-        {
-            type:'other', id: 'b', parent:null,
-            children:[
-            {
-                type:'node', id: 'n7', parent:null,
-                children:[
-                {
-                    type:'node', id: 'n8', parent:null,
-                    children:<any>null
-                },
-                {
-                    type:'node', id: 'n9', parent:null,
-                    children:<any>null
-                }]
-            },
-            {
-                type:'other', id: 'h', parent:null,
-                children:<any>null
-            }]
-        }]
-    };
+declare function using( title:string , data: any[], callback: (...any)=>any );
+
+/*
+The tree
+n1-------------
+|          \   \
+a--         n5  b---
+|  \        |   |   \
+n2  e--     n6  n7-  h
+|\  |  \        |  \
+c d n3  g       n8 n9
+    | \
+    f n4
+*/
+let testTree:ITestNode = new TestNode('node','n1',[
+    new TestNode('other','a',[
+        new TestNode('node', 'n2',[
+            new TestNode('other', 'c'),
+            new TestNode('other', 'd'),
+        ]),
+        new TestNode('other', 'e', [
+            new TestNode('node', 'n3',[
+                new TestNode('other', 'f'),
+                new TestNode('node', 'n4'),
+            ]),
+            new TestNode('other', 'g'),
+        ]),
+    ]),
+    new TestNode('node','n5', [
+        new TestNode('node', 'n6'),
+    ]),
+    new TestNode('other','b',[
+        new TestNode('node', 'n7',[
+            new TestNode('node', 'n8'),
+            new TestNode('node', 'n9'),
+        ]),
+        new TestNode('other', 'h'),
+    ]),
+]);
 
 //patch the parent back pointer
 (function patch(node:ITestNode, parent:ITestNode){
     node.parent = parent;
-    for( let child of node.children){
-        patch(child,node);
-    }
+    if ( node.children)
+        for( let child of node.children){
+            patch(child,node);
+        }
 } 
 )(testTree, null);
 
@@ -142,15 +71,22 @@ function findNode(nodeName:string):ITestNode{
 
 function findNodeInternal(node:ITestNode, nodeName:string):ITestNode{
     var retVal = null;
+    if ( ! node )
+        return null;
     if ( node.id === nodeName)
         return node;
     var idx = 0;
+    
+    
+    if ( !node.children || node.children.length == 0)
+        return null;
+    
     var numElm = node.children.length;
     
     do {
         retVal = findNodeInternal(node.children[idx], nodeName);
         ++idx;
-    }while(retVal == null && idx < numElm-1);
+    }while(retVal == null && idx < numElm);
     return retVal;    
 }
 
@@ -165,7 +101,7 @@ var TestNavigator = (function () {
     function TestNavigator() {
     }
     TestNavigator.prototype.nextSibling = function (node) {
-        if (!node.parent)
+        if (!node || !node.parent)
             return null;
         var parent = node.parent;
         var currentNodeIndex = _.indexOf(parent.children, node);
@@ -174,7 +110,7 @@ var TestNavigator = (function () {
         return null;
     };
     TestNavigator.prototype.previousSibling = function (node) {
-        if (!node.parent)
+        if (!node || !node.parent)
             return null;
         var parent = node.parent;
         var currentNodeIndex = _.indexOf(parent.children, node);
@@ -183,25 +119,28 @@ var TestNavigator = (function () {
         return null;
     };
     TestNavigator.prototype.parent = function (node) {
+        if (!node)
+            return null;
         return node.parent;
     };
     TestNavigator.prototype.firstChild = function (node) {
-        if (node.children && node.children.length > 0)
-            node.children[0];
+        if (node && node.children && node.children.length > 0){
+            return node.children[0];
+        }
         return null;
     };
     TestNavigator.prototype.lastChild = function (node) {
-        if (node.children && node.children.length > 0)
+        if (node && node.children && node.children.length > 0)
             node.children[node.children.length - 1];
         return null;
     };
     TestNavigator.prototype.hasChildren = function (node) {
-        if (node.children && node.children.length > 0)
+        if (node && node.children && node.children.length > 0)
             return true;
         return false;
     };
     TestNavigator.prototype.hasParent = function (node) {
-        return !!node.parent;
+        return node && node.parent;
     };
     return TestNavigator;
 }());
@@ -222,13 +161,13 @@ describe("Testing tree navigation", function(){
     //    c d n3  g       n8 n9
     //        | \
     //        f n4
-    it("should navigate", function(){
+//    it("should navigate", function(){
         using("sample values",
             [["n1", true, "n1"],
             ["n1", false, null],
             ["a", true, "n2"],
             ["a", false, "n5"],
-            ["n2", true, "n3"],
+            ["n2", true, "n2"],
             ["n2", false, "n3"],
             ["c", true, "n3"],
             ["c", false, "n3"],
@@ -262,10 +201,9 @@ describe("Testing tree navigation", function(){
                 var navigator = new TestNavigator();
                 it("should navigate from startNode to endNode", function(){
                     var startNode = findNode(startNodeName);
-                    var endNode = findNode(endNodeName);
+                    var endNode = endNodeName==null ? null : findNode(endNodeName);
                     expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
                 });    
             }
         );
-    })
 });
