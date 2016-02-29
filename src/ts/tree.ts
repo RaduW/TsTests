@@ -25,6 +25,35 @@ namespace ModificationEditor{
         (node: Node ):boolean;
     }
     
+    
+    export function findPrevious<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
+        if (!currentNode)
+            return null;
+
+        //look inside the node if we need to
+        if ( includeCurrent)
+        {
+            if ( navigator.hasChildren(currentNode))
+            {
+                let child:Node = navigator.lastChild(currentNode);
+                do{
+                    let previous:Node = findPrevious(child,navigator,matcher,true);
+                    if ( previous)
+                        return previous;
+                    child = navigator.previousSibling(child);
+                }while( child != null)
+            }
+            if ( matcher(currentNode))
+                return currentNode;
+        }
+        
+        if ( navigator.hasParent(currentNode))
+        {
+            
+        }
+            
+    }
+    
     export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
         if (!currentNode)
             return null;
