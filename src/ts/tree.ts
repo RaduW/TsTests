@@ -11,7 +11,7 @@ namespace ModificationEditor{
         Out( currentLocation: Node): Node;
     }
     
-    interface INodeNavigator<Node>{
+    export interface INodeNavigator<Node>{
         nextSibling(node:Node):Node;
         previousSibling(node:Node):Node;
         parent(node:Node):Node;
@@ -25,7 +25,6 @@ namespace ModificationEditor{
         (node: Node ):boolean;
     }
     
-       
     export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
         if (!currentNode)
             return null;

@@ -18,10 +18,10 @@ module.exports = function (config) {
             'lib/jquery/dist/jquery.js',
             'lib/angular/angular.js',
             'lib/angular-mocks/angular-mocks.js',
+            'lib/jasmine-data_driven_tests/src/all.js',
             'lib/**/*.js',
             'js/**/*.module.js',
             'js/**/*.js',
-            'lib/jasmine-data_driven_tests/src/all.js',
             'js/**/*.spec.js',
             'test/**/*spec.coffee',
             'js/**/*.html'   // this is for the ng-html2js preprocessor
@@ -76,10 +76,10 @@ module.exports = function (config) {
         reporters: ["karmaSimpleReporter"],
 
         specReporter: {
-            suppressPassed: true,
+            suppressPassed: false,
             suppressSkipped: true,
             suppressFailed: false,
-            suppressErrorSummary: true, 
+            suppressErrorSummary: false, 
             maxLogLines: 5,
             prefixes: {
             success: '✓ ',
@@ -108,8 +108,8 @@ module.exports = function (config) {
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         //browsers: ['Chrome', 'PhantomJS'],
-        //browsers: ['PhantomJS'],
-        browsers: ['Chrome'],
+        browsers: ['PhantomJS'],
+        //browsers: ['Chrome'],
 
 
         // Continuous Integration mode

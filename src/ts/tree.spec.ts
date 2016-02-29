@@ -14,7 +14,10 @@ class TestNode implements ITestNode{
     toString(){ return `<${this.type} id=${this.id}>`;}
 }
     
-declare function using( title:string , data: any[], callback: (...any)=>any );
+declare function using( title:string , data: any[], callback: (...rest:any[])=>any ):void;
+declare function xusing( title:string , data: any[], callback: (...rest:any[])=>any ):void;
+declare function all( title:string , data: any[], callback: (...rest:any[])=>any ):void;
+declare function xall( title:string , data: any[], callback: (...rest:any[])=>any ):void;
 
 /*
 The tree
@@ -70,7 +73,7 @@ function findNode(nodeName:string):ITestNode{
 }
 
 function findNodeInternal(node:ITestNode, nodeName:string):ITestNode{
-    var retVal = null;
+    var retVal: ITestNode = null;
     if ( ! node )
         return null;
     if ( node.id === nodeName)
@@ -97,10 +100,8 @@ function testMatcher(node:ITestNode){
     return node.type === 'node';
 }
 
-var TestNavigator = (function () {
-    function TestNavigator() {
-    }
-    TestNavigator.prototype.nextSibling = function (node) {
+class TestNavigator implements ModificationEditor.INodeNavigator<ITestNode>{
+    nextSibling(node: ITestNode):ITestNode {
         if (!node || !node.parent)
             return null;
         var parent = node.parent;
@@ -109,7 +110,7 @@ var TestNavigator = (function () {
             return parent.children[currentNodeIndex + 1];
         return null;
     };
-    TestNavigator.prototype.previousSibling = function (node) {
+    previousSibling(node: ITestNode): ITestNode {
         if (!node || !node.parent)
             return null;
         var parent = node.parent;
@@ -118,32 +119,31 @@ var TestNavigator = (function () {
             return parent.children[currentNodeIndex - 1];
         return null;
     };
-    TestNavigator.prototype.parent = function (node) {
+    parent(node: ITestNode): ITestNode {
         if (!node)
             return null;
         return node.parent;
     };
-    TestNavigator.prototype.firstChild = function (node) {
+    firstChild = function (node: ITestNode): ITestNode {
         if (node && node.children && node.children.length > 0){
             return node.children[0];
         }
         return null;
     };
-    TestNavigator.prototype.lastChild = function (node) {
+    lastChild = function (node: ITestNode): ITestNode {
         if (node && node.children && node.children.length > 0)
             node.children[node.children.length - 1];
         return null;
     };
-    TestNavigator.prototype.hasChildren = function (node) {
+    hasChildren = function (node: ITestNode):boolean {
         if (node && node.children && node.children.length > 0)
             return true;
         return false;
     };
-    TestNavigator.prototype.hasParent = function (node) {
-        return node && node.parent;
+    hasParent = function (node: ITestNode): boolean {
+        return !!node && !!node.parent;
     };
-    return TestNavigator;
-}());
+}
 
 
 describe("Testing tree navigation", function(){
@@ -161,8 +161,7 @@ describe("Testing tree navigation", function(){
     //    c d n3  g       n8 n9
     //        | \
     //        f n4
-//    it("should navigate", function(){
-        using("sample values",
+        all("findNext should navigate from startNode to endNode",
             [["n1", true, "n1"],
             ["n1", false, null],
             ["a", true, "n2"],
@@ -197,13 +196,11 @@ describe("Testing tree navigation", function(){
             ["n9", false, null],
             ["h", true, null],
             ["h", false, null]],
-            function(startNodeName,including,endNodeName){
+            function(startNodeName:string,including:boolean,endNodeName:string){
                 var navigator = new TestNavigator();
-                it("should navigate from startNode to endNode", function(){
-                    var startNode = findNode(startNodeName);
-                    var endNode = endNodeName==null ? null : findNode(endNodeName);
-                    expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
-                });    
+                var startNode = findNode(startNodeName);
+                var endNode = endNodeName==null ? null : findNode(endNodeName);
+                expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
             }
         );
 });
