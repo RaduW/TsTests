@@ -33,25 +33,51 @@ namespace ModificationEditor{
         //look inside the node if we need to
         if ( includeCurrent)
         {
-            if ( navigator.hasChildren(currentNode))
-            {
-                let child:Node = navigator.lastChild(currentNode);
-                do{
-                    let previous:Node = findPrevious(child,navigator,matcher,true);
-                    if ( previous)
-                        return previous;
-                    child = navigator.previousSibling(child);
-                }while( child != null)
-            }
-            if ( matcher(currentNode))
-                return currentNode;
+            let retVal:Node = findLastChild(currentNode,navigator,matcher);
+            if ( retVal)
+                return retVal;
         }
         
         if ( navigator.hasParent(currentNode))
         {
+            //look at the previous siblings
+            let sibling:Node = currentNode;
+            do {
+                sibling = navigator.previousSibling(sibling);
+                if(sibling){
+                    let retVal:Node = findPrevious(sibling,navigator,matcher,true);
+                    if ( retVal)
+                        return retVal;
+                }
+                                 
+            }while (sibling)
             
+            if ( navigator.hasParent(currentNode))
+            {
+                let parent:Node = navigator.parent(currentNode);
+                //look at the parent
+                if (  matcher(parent))
+                    return parent;
+                //find parrent's previous node
+                return findPrevious(parent,navigator,matcher,false);
+            }
         }
-            
+        return null;
+    }
+    
+    function findLastChild<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>):Node{
+        if ( navigator.hasChildren(currentNode)){
+            let child:Node = navigator.lastChild(currentNode);
+            do{
+                let retVal:Node = findLastChild(child,navigator,matcher)
+                if ( retVal)
+                    return retVal;
+                child = navigator.previousSibling(child);
+            }while( child != null)
+        }
+        if ( matcher(currentNode))
+            return currentNode;
+        return null;
     }
     
     export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
