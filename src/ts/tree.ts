@@ -29,7 +29,7 @@ namespace ModificationEditor{
     export function findPrevious<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
         if (!currentNode)
             return null;
-
+            
         //look inside the node if we need to
         if ( includeCurrent)
         {
@@ -68,7 +68,7 @@ namespace ModificationEditor{
     function findLastChild<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>):Node{
         if ( navigator.hasChildren(currentNode)){
             let child:Node = navigator.lastChild(currentNode);
-            do{
+           do{
                 let retVal:Node = findLastChild(child,navigator,matcher)
                 if ( retVal)
                     return retVal;
@@ -125,7 +125,6 @@ namespace ModificationEditor{
                 return currentChild;
             let child = findChild(currentChild,navigator,matcher);
             if ( child ){
-                console.log(`findChild(${currentNode}) returned ${child}`);
                 return child;
             }
             currentChild = navigator.nextSibling(currentChild);

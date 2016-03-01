@@ -79,7 +79,7 @@ module.exports = function (config) {
             suppressPassed: false,
             suppressSkipped: true,
             suppressFailed: false,
-            suppressErrorSummary: false, 
+            suppressErrorSummary: true, 
             maxLogLines: 5,
             prefixes: {
             success: '✓ ',

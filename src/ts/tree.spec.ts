@@ -132,7 +132,7 @@ class TestNavigator implements ModificationEditor.INodeNavigator<ITestNode>{
     };
     lastChild = function (node: ITestNode): ITestNode {
         if (node && node.children && node.children.length > 0)
-            node.children[node.children.length - 1];
+            return node.children[node.children.length - 1];
         return null;
     };
     hasChildren = function (node: ITestNode):boolean {
@@ -151,16 +151,16 @@ describe("Testing tree navigation", function(){
         //do your init
     })
 
-    //    The tree
-    //    n1-------------
-    //    |          \   \
-    //    a--         n5  b---
-    //    |  \        |   |   \
-    //    n2  e--     n6  n7-  h
-    //    |\  |  \        |  \
-    //    c d n3  g       n8 n9
-    //        | \
-    //        f n4
+        //    The tree
+        //    n1-------------
+        //    |          \   \
+        //    a--         n5  b---
+        //    |  \        |   |   \
+        //    n2  e--     n6  n7-  h
+        //    |\  |  \        |  \
+        //    c d n3  g       n8 n9
+        //        | \
+        //        f n4
         all("findNext should navigate from startNode to endNode",
             [["n1", true, "n1"],
             ["n1", false, null],
@@ -201,6 +201,60 @@ describe("Testing tree navigation", function(){
                 var startNode = findNode(startNodeName);
                 var endNode = endNodeName==null ? null : findNode(endNodeName);
                 expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
+            }
+        );
+        
+        //    The tree
+        //    n1-------------
+        //    |          \   \
+        //    a--         n5  b---
+        //    |  \        |   |   \
+        //    n2  e--     n6  n7-  h
+        //    |\  |  \        |  \
+        //    c d n3  g       n8 n9
+        //        | \
+        //        f n4
+        all("findPrevious should navigate from startNode to endNode",[
+                ["n1", true, "n9"],
+                ["n1", false, null],
+                ["a", true, "n4"],
+                ["a", false, "n1"],
+                ["n2", true, "n2"],
+                ["n2", false, "n1"],
+                ["c", true, "n2"],
+                ["c", false, "n2"],
+                ["d", true, "n2"],
+                ["d", false, "n2"],
+                ["e", true, "n4"],
+                ["e", false, "n2"],
+                ["n3", true, "n4"],
+                ["n3", false, "n2"],
+                ["f", true, "n3"],
+                ["f", false, "n3"],
+                ["n4", true, "n4"],
+                ["n4", false, "n3"],
+                ["g", true, "n4"],
+                ["g", false, "n4"],
+                ["n5", true, "n6"],
+                ["n5", false, "n4"],
+                ["n6", true, "n6"],
+                ["n6", false, "n5"],
+                ["b", true, "n9"],
+                ["b", false, "n6"],
+                ["n7", true, "n9"],
+                ["n7", false, "n6"],
+                ["n8", true, "n8"],
+                ["n8", false, "n7"],
+                ["n9", true, "n9"],
+                ["n9", false, "n8"],
+                ["h", true, "n9"],
+                ["h", false, "n9"]
+            ],
+            function(startNodeName:string,including:boolean,endNodeName:string){
+                var navigator = new TestNavigator();
+                var startNode = findNode(startNodeName);
+                var endNode = endNodeName==null ? null : findNode(endNodeName);
+                expect(ModificationEditor.findPrevious(startNode,navigator,testMatcher,including)).toEqual(endNode);
             }
         );
 });
