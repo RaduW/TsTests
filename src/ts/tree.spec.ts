@@ -1,6 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="tree.ts" />
-
+import HierarchyWalker = ModificationEditor.HierarchyWalker;
+import HierarchyWalker = ModificationEditor.HierarchyWalker;
 interface ITestNode{
     type:string;
     id: string;
@@ -145,24 +144,68 @@ class TestNavigator implements ModificationEditor.INodeNavigator<ITestNode>{
     };
 }
 
+describe("Testing Hierarchy Walker", function(){
+    let walker:HierarchyWalker<ITestNode> = new HierarchyWalker<ITestNode>(
+        new TestNavigator(),testMatcher,testTree);
+
+    all("goNext should navigate to the next node", [
+            ["n1",null],
+        ],
+        function(startNodeName:string,endNodeName:string){
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            const result = walker.goNext(startNode);
+            expect(result).toEqual(endNode);
+        });
+
+    all("goPrevious should navigate to the previous node", [
+            ["n1",null],
+        ],
+        function(startNodeName:string,endNodeName:string){
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            const result = walker.goPrevious(startNode);
+            expect(result).toEqual(endNode);
+        });
+
+    all("goIn should navigate to the next node", [
+            ["n1","n2"],
+        ],
+        function(startNodeName:string,endNodeName:string){
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            const result = walker.goIn(startNode);
+            expect(result).toEqual(endNode);
+        });
+
+    all("goOut should navigate to the next node", [
+            ["n1",null],
+        ],
+        function(startNodeName:string,endNodeName:string){
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            const result = walker.goOut(startNode);
+            expect(result).toEqual(endNode);
+        });
+});
 
 describe("Testing tree navigation", function(){
     beforeEach(function(){
         //do your init
-    })
+    });
 
-        //    The tree
-        //    n1-------------
-        //    |          \   \
-        //    a--         n5  b---
-        //    |  \        |   |   \
-        //    n2  e--     n6  n7-  h
-        //    |\  |  \        |  \
-        //    c d n3  g       n8 n9
-        //        | \
-        //        f n4
-        all("findNext should navigate from startNode to endNode",
-            [["n1", true, "n1"],
+    //    The tree
+    //    n1-------------                         n1----------------------------
+    //    |          \   \                          \           \       \       \
+    //    a--         n5  b---                    a n2 c d    e n3 g    n5    b n7-- h
+    //    |  \        |   |   \         ==>                     |       |       |  \
+    //    n2  e--     n6  n7-  h                              f n4      n6      n8 n9
+    //    |\  |  \        |  \
+    //    c d n3  g       n8 n9
+    //        | \
+    //        f n4
+    all("findNext should navigate from startNode to endNode",[
+            ["n1", true, "n1"],
             ["n1", false, null],
             ["a", true, "n2"],
             ["a", false, "n5"],
@@ -195,66 +238,67 @@ describe("Testing tree navigation", function(){
             ["n9", true, "n9"],
             ["n9", false, null],
             ["h", true, null],
-            ["h", false, null]],
-            function(startNodeName:string,including:boolean,endNodeName:string){
-                var navigator = new TestNavigator();
-                var startNode = findNode(startNodeName);
-                var endNode = endNodeName==null ? null : findNode(endNodeName);
-                expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
-            }
-        );
-        
-        //    The tree
-        //    n1-------------
-        //    |          \   \
-        //    a--         n5  b---
-        //    |  \        |   |   \
-        //    n2  e--     n6  n7-  h
-        //    |\  |  \        |  \
-        //    c d n3  g       n8 n9
-        //        | \
-        //        f n4
-        all("findPrevious should navigate from startNode to endNode",[
-                ["n1", true, "n9"],
-                ["n1", false, null],
-                ["a", true, "n4"],
-                ["a", false, "n1"],
-                ["n2", true, "n2"],
-                ["n2", false, "n1"],
-                ["c", true, "n2"],
-                ["c", false, "n2"],
-                ["d", true, "n2"],
-                ["d", false, "n2"],
-                ["e", true, "n4"],
-                ["e", false, "n2"],
-                ["n3", true, "n4"],
-                ["n3", false, "n2"],
-                ["f", true, "n3"],
-                ["f", false, "n3"],
-                ["n4", true, "n4"],
-                ["n4", false, "n3"],
-                ["g", true, "n4"],
-                ["g", false, "n4"],
-                ["n5", true, "n6"],
-                ["n5", false, "n4"],
-                ["n6", true, "n6"],
-                ["n6", false, "n5"],
-                ["b", true, "n9"],
-                ["b", false, "n6"],
-                ["n7", true, "n9"],
-                ["n7", false, "n6"],
-                ["n8", true, "n8"],
-                ["n8", false, "n7"],
-                ["n9", true, "n9"],
-                ["n9", false, "n8"],
-                ["h", true, "n9"],
-                ["h", false, "n9"]
-            ],
-            function(startNodeName:string,including:boolean,endNodeName:string){
-                var navigator = new TestNavigator();
-                var startNode = findNode(startNodeName);
-                var endNode = endNodeName==null ? null : findNode(endNodeName);
-                expect(ModificationEditor.findPrevious(startNode,navigator,testMatcher,including)).toEqual(endNode);
-            }
-        );
+            ["h", false, null]
+        ],
+        function(startNodeName:string,including:boolean,endNodeName:string){
+            const navigator = new TestNavigator();
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            expect(ModificationEditor.findNext(startNode,navigator,testMatcher,including)).toEqual(endNode);
+        }
+    );
+
+    //    The tree
+    //    n1-------------                         n1----------------------------
+    //    |          \   \                          \           \       \       \
+    //    a--         n5  b---                    a n2 c d    e n3 g    n5    b n7-- h
+    //    |  \        |   |   \         ==>                     |       |       |  \
+    //    n2  e--     n6  n7-  h                              f n4      n6      n8 n9
+    //    |\  |  \        |  \
+    //    c d n3  g       n8 n9
+    //        | \
+    //        f n4
+    all("findPrevious should navigate from startNode to endNode",[
+            ["n1", true, "n9"],
+            ["n1", false, null],
+            ["a", true, "n4"],
+            ["a", false, "n1"],
+            ["n2", true, "n2"],
+            ["n2", false, "n1"],
+            ["c", true, "n2"],
+            ["c", false, "n2"],
+            ["d", true, "n2"],
+            ["d", false, "n2"],
+            ["e", true, "n4"],
+            ["e", false, "n2"],
+            ["n3", true, "n4"],
+            ["n3", false, "n2"],
+            ["f", true, "n3"],
+            ["f", false, "n3"],
+            ["n4", true, "n4"],
+            ["n4", false, "n3"],
+            ["g", true, "n4"],
+            ["g", false, "n4"],
+            ["n5", true, "n6"],
+            ["n5", false, "n4"],
+            ["n6", true, "n6"],
+            ["n6", false, "n5"],
+            ["b", true, "n9"],
+            ["b", false, "n6"],
+            ["n7", true, "n9"],
+            ["n7", false, "n6"],
+            ["n8", true, "n8"],
+            ["n8", false, "n7"],
+            ["n9", true, "n9"],
+            ["n9", false, "n8"],
+            ["h", true, "n9"],
+            ["h", false, "n9"]
+        ],
+        function(startNodeName:string,including:boolean,endNodeName:string){
+            const navigator = new TestNavigator();
+            const startNode = findNode(startNodeName);
+            const endNode = endNodeName==null ? null : findNode(endNodeName);
+            expect(ModificationEditor.findPrevious(startNode,navigator,testMatcher,including)).toEqual(endNode);
+        }
+    );
 });

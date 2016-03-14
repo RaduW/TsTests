@@ -2,13 +2,13 @@ namespace ModificationEditor{
     
     
     export interface ILinearWalker<Node>{
-        Next( currentLocation: Node): Node;
-        Previous( currentLocation: Node): Node;
+        goNext( currentLocation: Node): Node;
+        goPrevious( currentLocation: Node): Node;
     }
     
     export interface ISurfaceWalker<Node> extends ILinearWalker<Node>{
-        In( currentLocation: Node): Node;
-        Out( currentLocation: Node): Node;
+        goIn( currentLocation: Node): Node;
+        goOut( currentLocation: Node): Node;
     }
     
     export interface INodeNavigator<Node>{
@@ -26,7 +26,8 @@ namespace ModificationEditor{
     }
     
     
-    export function findPrevious<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
+    export function findPrevious<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>
+            , includeCurrent: boolean):Node{
         if (!currentNode)
             return null;
             
@@ -50,7 +51,7 @@ namespace ModificationEditor{
                         return retVal;
                 }
                                  
-            }while (sibling)
+            }while (sibling);
             
             if ( navigator.hasParent(currentNode))
             {
@@ -69,7 +70,7 @@ namespace ModificationEditor{
         if ( navigator.hasChildren(currentNode)){
             let child:Node = navigator.lastChild(currentNode);
            do{
-                let retVal:Node = findLastChild(child,navigator,matcher)
+                let retVal:Node = findLastChild(child,navigator,matcher);
                 if ( retVal)
                     return retVal;
                 child = navigator.previousSibling(child);
@@ -80,7 +81,8 @@ namespace ModificationEditor{
         return null;
     }
     
-    export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>, includeCurrent: boolean):Node{
+    export function findNext<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>
+            , includeCurrent: boolean):Node{
         if (!currentNode)
             return null;
         //look inside the node if we need to
@@ -102,7 +104,7 @@ namespace ModificationEditor{
             if ( matcher(nextSibling))
                 return nextSibling;
 
-            let child = findChild( nextSibling, navigator, matcher)
+            let child = findChild( nextSibling, navigator, matcher);
 
             if ( child)
                 return child;
@@ -128,17 +130,17 @@ namespace ModificationEditor{
                 return child;
             }
             currentChild = navigator.nextSibling(currentChild);
-        }while( currentChild != null)
+        }while( currentChild != null);
         
         return null;        
     }
-    
+
     export class SimpleHtmlNavigator implements ISurfaceWalker<HTMLElement>{
         
         public constructor(private returnNullOnMoveFailure:boolean = false)
         {}
 
-        public Next( element: HTMLElement): HTMLElement{
+        public goNext( element: HTMLElement): HTMLElement{
             let failReturn = this.returnNullOnMoveFailure ? null: element;
             
             if (! element || ! (element instanceof HTMLElement))
@@ -152,7 +154,7 @@ namespace ModificationEditor{
             return failReturn;
         }
 
-        public Previous( element: HTMLElement): HTMLElement{
+        public goPrevious( element: HTMLElement): HTMLElement{
             let failReturn = this.returnNullOnMoveFailure ? null: element;
 
             if (! element || ! (element instanceof HTMLElement))
@@ -166,7 +168,7 @@ namespace ModificationEditor{
             return failReturn;
         }
 
-        public In( element: HTMLElement): HTMLElement{
+        public goIn( element: HTMLElement): HTMLElement{
             let failReturn = this.returnNullOnMoveFailure ? null: element;
 
             if (! element || ! (element instanceof HTMLElement))
@@ -176,12 +178,12 @@ namespace ModificationEditor{
                 if ( retVal instanceof HTMLElement)
                     return retVal;
                 retVal = retVal.nextElementSibling;
-            }while ( retVal != null)
+            }while ( retVal != null);
             
             return failReturn;
         }
 
-        public Out( element: HTMLElement): HTMLElement{
+        public goOut( element: HTMLElement): HTMLElement{
             let failReturn = this.returnNullOnMoveFailure ? null: element;
 
             if (! element || ! (element instanceof HTMLElement))
@@ -190,6 +192,148 @@ namespace ModificationEditor{
             return element.parentElement == null? failReturn : element.parentElement;
         }
     }
-    
+
+    export class HierarchyWalker<Node> implements ISurfaceWalker<Node>{
+        constructor(
+            private navigator:INodeNavigator<Node>,
+            private matcher:INodeMatcher<Node>,
+            private root:Node){
+        }
+        goNext(currentLocation:Node):Node{
+            return this.next(currentLocation,false);
+        }
+
+        goPrevious(currentLocation:Node):Node{
+            return this.previous(currentLocation,false);
+        }
+
+        goIn(currentLocation:Node):Node{
+            let self = this;
+            let child = self.navigator.firstChild(currentLocation);
+            do{
+                let found:Node = self.findFirstChild(child);
+                if ( found)
+                    return found;
+            }while( child);
+        }
+
+        goOut(currentLocation:Node):Node{
+            let self = this;
+            if ( currentLocation == self.root) {
+                if (self.matcher(currentLocation))
+                    return currentLocation;
+                else
+                    return null;
+            }
+            let parent:Node = currentLocation;
+            while ( parent = self.navigator.parent(parent)){
+                if (self.matcher(parent))
+                    return parent;
+                if ( parent == self.root) {
+                    return null; // we are not allowed to go higher
+                }
+            }
+            return null;
+        }
+
+        private next(currentLocation:Node, include:boolean):Node{
+            let self = this;
+            if ( ! currentLocation)
+                return null;
+
+            //go inside
+            if ( include){
+                if( self.matcher(currentLocation))
+                    return currentLocation;
+
+                let child = self.navigator.firstChild(currentLocation);
+                do{
+                    let found:Node = self.findFirstChild(child);
+                    if ( found)
+                        return found;
+                }while( child);
+            }
+
+            //go right ( siblings)
+            let sibling:Node = self.navigator.nextSibling(currentLocation);
+            while( sibling){
+                let found:Node = self.findFirstChild(sibling);
+                if ( found)
+                    return found;
+                sibling = self.navigator.nextSibling(sibling);
+            }
+
+            //go up if parent node is not selectable
+            let parent:Node = self.navigator.parent(currentLocation);
+            if ( parent && !self.matcher(parent))
+                return self.next(parent, false);
+            return null;
+        }
+        private previous(currentLocation:Node, include:boolean):Node{
+            let self = this;
+            if ( ! currentLocation)
+                return null;
+
+            //go inside
+            if ( include){
+                if( self.matcher(currentLocation))
+                    return currentLocation;
+
+                let child = self.navigator.lastChild(currentLocation);
+                do{
+                    let found:Node = self.findLastChild(child);
+                    if ( found)
+                        return found;
+                }while( child);
+            }
+
+            //go left ( siblings)
+            let sibling:Node = self.navigator.previousSibling(currentLocation);
+            while( sibling){
+                let found:Node = self.findLastChild(sibling);
+                if ( found)
+                    return found;
+                sibling = self.navigator.previousSibling(sibling);
+            }
+
+            //go up if parent node is not selectable
+            let parent:Node = self.navigator.parent(currentLocation);
+            if ( parent && !self.matcher(parent))
+                return self.previous(parent, false);
+            return null;
+        }
+
+        private findFirstChild( node:Node):Node{
+            let self = this;
+            if ( self.matcher(node))
+                return node;
+
+            let child = self.navigator.firstChild(node);
+            while ( child){
+                let found:Node = self.findFirstChild(child);
+                if ( found) {
+                    return found;
+                }
+                child = self.navigator.nextSibling(child);
+            }
+            return null;
+        }
+        private findLastChild( node:Node):Node{
+            let self = this;
+            if ( self.matcher(node))
+                return node;
+
+            let child = self.navigator.lastChild(node);
+            while ( child){
+                let found:Node = self.findLastChild(child);
+                if ( found) {
+                    return found;
+                }
+                child = self.navigator.previousSibling(child);
+            }
+            return null;
+        }
+
+    }
 }
 
