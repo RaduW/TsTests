@@ -51,7 +51,8 @@ gulp.task('typescript', function () {
     console.log("transpiling typescript files to js");
     return gulp.src( baseDir +'ts/**/*.ts').
         pipe(tsCompiler({
-            target: 'es5',
+//            target: 'es5',
+              project: baseDir +"tsconfig.json"
         }))
         .pipe(gulp.dest(baseDir +'js'));
 });

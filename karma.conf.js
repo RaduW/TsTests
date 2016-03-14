@@ -76,7 +76,7 @@ module.exports = function (config) {
         reporters: ["karmaSimpleReporter"],
 
         specReporter: {
-            suppressPassed: false,
+            suppressPassed: true,
             suppressSkipped: true,
             suppressFailed: false,
             suppressErrorSummary: true, 

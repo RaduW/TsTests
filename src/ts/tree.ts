@@ -200,11 +200,11 @@ namespace ModificationEditor{
             private root:Node){
         }
         goNext(currentLocation:Node):Node{
-            return this.next(currentLocation,false);
+            return this.next(currentLocation,false) || currentLocation;
         }
 
         goPrevious(currentLocation:Node):Node{
-            return this.previous(currentLocation,false);
+            return this.previous(currentLocation,false) || currentLocation ;
         }
 
         goIn(currentLocation:Node):Node{
@@ -214,7 +214,9 @@ namespace ModificationEditor{
                 let found:Node = self.findFirstChild(child);
                 if ( found)
                     return found;
+                child = self.navigator.nextSibling(child);
             }while( child);
+            return currentLocation;
         }
 
         goOut(currentLocation:Node):Node{
@@ -233,7 +235,7 @@ namespace ModificationEditor{
                     return null; // we are not allowed to go higher
                 }
             }
-            return null;
+            return currentLocation;
         }
 
         private next(currentLocation:Node, include:boolean):Node{

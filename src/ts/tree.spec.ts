@@ -1,4 +1,4 @@
-import HierarchyWalker = ModificationEditor.HierarchyWalker;
+
 import HierarchyWalker = ModificationEditor.HierarchyWalker;
 interface ITestNode{
     type:string;
@@ -149,7 +149,23 @@ describe("Testing Hierarchy Walker", function(){
         new TestNavigator(),testMatcher,testTree);
 
     all("goNext should navigate to the next node", [
-            ["n1",null],
+            ["n1","n1"],
+            ["a", "n5"],
+            ["n2","n3"],
+            ["c", "c"],
+            ["d", "d"],
+            ["e", "n5"],
+            ["n3","n5"],
+            ["f", "n4"],
+            ["n4","n4"],
+            ["g", "n5"],
+            ["n5","n7"],
+            ["n6","n6"],
+            ["b", "b"],
+            ["n7","n7"],
+            ["n8","n9"],
+            ["n9","n9"],
+            ["h", "h"]
         ],
         function(startNodeName:string,endNodeName:string){
             const startNode = findNode(startNodeName);
@@ -159,7 +175,23 @@ describe("Testing Hierarchy Walker", function(){
         });
 
     all("goPrevious should navigate to the previous node", [
-            ["n1",null],
+            ["n1","n1"],
+            ["a", "a"],
+            ["n2","n2"],
+            ["c", "c"],
+            ["d", "d"],
+            ["e", "n2"],
+            ["n3","n2"],
+            ["f", "f"],
+            ["n4","n4"],
+            ["g", "n3"],
+            ["n5","n3"],
+            ["n6","n6"],
+            ["b", "n5"],
+            ["n7","n5"],
+            ["n8","n8"],
+            ["n9","n8"],
+            ["h", "n7"]
         ],
         function(startNodeName:string,endNodeName:string){
             const startNode = findNode(startNodeName);
@@ -170,6 +202,22 @@ describe("Testing Hierarchy Walker", function(){
 
     all("goIn should navigate to the next node", [
             ["n1","n2"],
+            ["a", "n2"],
+            ["n2","n2"],
+            ["c", "c"],
+            ["d", "d"],
+            ["e", "n3"],
+            ["n3","n4"],
+            ["f", "f"],
+            ["n4","n4"],
+            ["g", "g"],
+            ["n5","n6"],
+            ["n6","n6"],
+            ["b", "n7"],
+            ["n7","n8"],
+            ["n8","n8"],
+            ["n9","n9"],
+            ["h", "h"]
         ],
         function(startNodeName:string,endNodeName:string){
             const startNode = findNode(startNodeName);
@@ -179,7 +227,23 @@ describe("Testing Hierarchy Walker", function(){
         });
 
     all("goOut should navigate to the next node", [
-            ["n1",null],
+            ["n1","n1"],
+            ["a", "n1"],
+            ["n2","n1"],
+            ["c", "n2"],
+            ["d", "n2"],
+            ["e", "n1"],
+            ["n3","n1"],
+            ["f", "n3"],
+            ["n4","n3"],
+            ["g", "n1"],
+            ["n5","n1"],
+            ["n6","n5"],
+            ["b", "n1"],
+            ["n7","n1"],
+            ["n8","n7"],
+            ["n9","n7"],
+            ["h", "n1"]
         ],
         function(startNodeName:string,endNodeName:string){
             const startNode = findNode(startNodeName);
