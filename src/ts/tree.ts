@@ -24,8 +24,11 @@ namespace ModificationEditor{
     interface INodeMatcher<Node>{
         (node: Node ):boolean;
     }
-    
-    
+
+    interface INodeName<Node>{
+        (node: Node): string;
+    }
+
     export function findPrevious<Node>(currentNode:Node, navigator:INodeNavigator<Node>, matcher: INodeMatcher<Node>
             , includeCurrent: boolean):Node{
         if (!currentNode)
@@ -136,20 +139,20 @@ namespace ModificationEditor{
     }
 
     export class SimpleHtmlWalker implements ISurfaceWalker<HTMLElement>{
-        
+
         public constructor(private returnNullOnMoveFailure:boolean = false)
         {}
 
         public goNext( element: HTMLElement): HTMLElement{
             let failReturn = this.returnNullOnMoveFailure ? null: element;
-            
+
             if (! element || ! (element instanceof HTMLElement))
                 return failReturn;
             let currentLocation: Element= element;
             do{
                 currentLocation = currentLocation.nextElementSibling;
                 if ( currentLocation instanceof HTMLElement)
-                    return currentLocation;                
+                    return currentLocation;
             }while ( currentLocation != null);
             return failReturn;
         }
@@ -163,7 +166,7 @@ namespace ModificationEditor{
             do{
                 currentLocation = currentLocation.previousElementSibling;
                 if ( currentLocation instanceof HTMLElement)
-                    return currentLocation;                
+                    return currentLocation;
             }while ( currentLocation != null);
             return failReturn;
         }
@@ -179,7 +182,7 @@ namespace ModificationEditor{
                     return retVal;
                 retVal = retVal.nextElementSibling;
             }while ( retVal != null);
-            
+
             return failReturn;
         }
 
@@ -188,7 +191,7 @@ namespace ModificationEditor{
 
             if (! element || ! (element instanceof HTMLElement))
                 return failReturn;
-                
+
             return element.parentElement == null? failReturn : element.parentElement;
         }
     }
@@ -337,5 +340,154 @@ namespace ModificationEditor{
         }
 
     }
-}
 
+    export class HtmlNavigator implements INodeNavigator<HTMLElement>{
+        constructor( private root: HTMLElement){
+        }
+
+        nextSibling(element:HTMLElement):HTMLElement{
+            if (! element )
+                return null;
+
+            let currentLocation: Element= element;
+            do{
+                currentLocation = currentLocation.nextElementSibling;
+                if ( currentLocation instanceof HTMLElement)
+                    return currentLocation;
+            }while ( currentLocation != null);
+            return null;
+        }
+
+        previousSibling(element:HTMLElement):HTMLElement{
+            if (! element )
+                return null;
+            let currentLocation: Element= element;
+            do{
+                currentLocation = currentLocation.previousElementSibling;
+                if ( currentLocation instanceof HTMLElement)
+                    return currentLocation;
+            }while ( currentLocation != null);
+            return null;
+        }
+        parent(element:HTMLElement):HTMLElement{
+            let self = this;
+            if ( ! element || element == self.root)
+                return null;
+
+            let parentElm = element.parentElement;
+            while ( parentElm && !(parentElm instanceof HTMLElement) && parentElm != self.root){
+                parentElm = parentElm.parentElement;
+            }
+            return parentElm;
+
+        }
+        firstChild(element:HTMLElement):HTMLElement{
+            if ( ! element)
+                return null;
+            let firstChild = element.firstElementChild;
+            while ( firstChild && ! (firstChild instanceof HTMLElement))
+                firstChild = firstChild.nextElementSibling;
+
+            if ( firstChild instanceof HTMLElement)
+                return firstChild;
+
+            return null;
+        }
+        lastChild(element:HTMLElement):HTMLElement{
+            if ( ! element)
+                return null;
+            let lastChild = element.lastElementChild;
+            while ( lastChild && ! (lastChild instanceof HTMLElement))
+                lastChild = lastChild.previousElementSibling;
+
+            if ( lastChild instanceof HTMLElement)
+                return lastChild;
+
+            return null;
+        }
+
+        hasChildren(element:HTMLElement): boolean{
+            if ( !element)
+                return false;
+
+            return element.childElementCount > 0 ;
+        }
+
+        hasParent(element:HTMLElement): boolean{
+            return this.parent(element) != null;
+        }
+
+    }
+
+    export function soforHtmlNodeMatcher(element:HTMLElement){
+        if ( element == null)
+            return false;
+        return element.hasAttribute('sfr-node');
+    }
+
+    export function getSuroundingHtmlNode(element:Element):HTMLElement{
+        if (! element )
+            return null;
+
+        if ( element instanceof HTMLElement  && soforHtmlNodeMatcher(element))
+            return element;
+
+        let parent = element.parentElement;
+
+        while( parent ){
+            if ( parent instanceof HTMLElement && soforHtmlNodeMatcher(parent)){
+                return parent;
+            }
+            parent = parent.parentElement;
+        }
+        return null;
+    }
+
+    export function getNodePath<Node>(node: Node, navigator: INodeNavigator<Node>, matcher:INodeMatcher<Node>, name:INodeName<Node>):string{
+        let path = '';
+        let currentNode=node;
+
+        while(currentNode){
+            if ( matcher(currentNode))
+            {
+                path = `/${name(currentNode)}${path}`;
+            }
+            currentNode = navigator.parent(currentNode);
+        }
+        return path;
+    }
+
+    export function soforHtmlNodeNamer( element:Element):string{
+        const attribute:Attr = element.attributes.getNamedItem('legalid');
+        if ( attribute)
+            return attribute.value;
+        else
+            return '';
+    }
+
+    export function getSoforHtmlNodePath(node:Element, navigator:INodeNavigator<HTMLElement>):string
+    {
+        const start:HTMLElement = getSuroundingHtmlNode(node);
+        return getNodePath(start, navigator, soforHtmlNodeMatcher, soforHtmlNodeNamer);
+    }
+
+    export class HtmlHierarchyWalker extends HierarchyWalker<HTMLElement> {
+
+        constructor(root:HTMLElement){
+            super(new HtmlNavigator(root) ,soforHtmlNodeMatcher, root)
+        }
+    }
+
+    export function getFirstChildSoforNode(node:Element):HTMLElement{
+        const navigator = new HtmlNavigator(null);
+        //we first go up to find an HTMLElement, this is not going to happen in practice and we'll
+        let currentElement: Element = node;
+        while ( currentElement )
+        {
+            if ( currentElement instanceof HTMLElement)
+                return findChild( currentElement,navigator,soforHtmlNodeMatcher);
+            currentElement = currentElement.parentElement;
+        }
+        return null;
+    }
+}
