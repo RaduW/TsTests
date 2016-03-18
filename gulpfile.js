@@ -9,7 +9,7 @@ var gulp = require('gulp'),
     autoprefixer = require('gulp-autoprefixer'),
     minifyCss = require('gulp-minify-css'),
     rename = require('gulp-rename'),
-    tsCompiler = require('gulp-typescript'),
+    ts = require('gulp-typescript'),
     bower = require('gulp-bower2'),
     mainBowerFiles = require('main-bower-files'),
     merge = require('merge2'),
@@ -49,12 +49,10 @@ gulp.task('less', function () {
 
 gulp.task('typescript', function () {
     console.log("transpiling typescript files to js");
-    return gulp.src( baseDir +'ts/**/*.ts').
-        pipe(tsCompiler({
-//            target: 'es5',
-              project: baseDir +"tsconfig.json"
-        }))
-        .pipe(gulp.dest(baseDir +'js'));
+    var tsProject = ts.createProject(baseDir + 'tsconfig.json');
+    var tsResult = tsProject.src()
+        .pipe(ts(tsProject));
+    return tsResult.pipe(gulp.dest(baseDir +'js'));        
 });
 
 gulp.task("typings",function(){
